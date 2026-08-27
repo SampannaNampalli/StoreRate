@@ -1,0 +1,14 @@
+{
+  "name": "storerate-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Developer tooling: API smoke test and README screenshot capture",
+  "scripts": {
+    "smoke": "node smoke-test.mjs",
+    "screenshots": "node capture-screenshots.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.1"
+  }
+}
