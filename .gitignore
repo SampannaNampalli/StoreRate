@@ -1,0 +1,29 @@
+# Dependencies and build output
+node_modules/
+dist/
+
+# Local environment and secrets
+.env
+.dev-secret
+
+# Logs
+*.log
+npm-debug.log*
+
+# Working files, not part of the submission
+SUBMISSION-FILES.pdf
+PUSH-SEQUENCE.md
+.impeccable/
+
+# Coding-agent configuration - kept locally, not part of the submission
+CLAUDE.md
+AGENTS.md
+.github/agents/
+.github/hooks/
+.github/skills/
+
+# Editor and OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
