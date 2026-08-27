@@ -1,0 +1,135 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+# A second push to the same branch cancels the run still in flight.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: store_ratings
+        ports: ['5432:5432']
+        # The job must not start migrating before the server accepts connections.
+        options: >-
+          --health-cmd "pg_isready -U postgres -d store_ratings"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NODE_ENV: test
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: store_ratings
+      # Long enough to satisfy the boot-time check; this database is thrown away
+      # with the runner.
+      JWT_SECRET: ci-only-secret-not-used-anywhere-real-0123456789
+      SEED_ADMIN_EMAIL: admin@storerate.com
+      SEED_ADMIN_PASSWORD: Admin@1234
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install
+        working-directory: backend
+        run: npm ci
+
+      - name: Lint
+        working-directory: backend
+        run: npm run lint
+
+      - name: Unit tests
+        working-directory: backend
+        run: npm test
+
+      - name: Audit production dependencies
+        working-directory: backend
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Migrate
+        working-directory: backend
+        run: npm run db:migrate
+
+      - name: Verify migrations are idempotent
+        working-directory: backend
+        # Running twice must be a no-op. This is what catches a migration that
+        # cannot be applied to a database that already has it.
+        run: npm run db:migrate
+
+      - name: Seed
+        working-directory: backend
+        run: npm run db:seed -- --force
+
+      - name: Start the API
+        working-directory: backend
+        # Rate limits are per-IP, and the smoke test makes far more requests from
+        # one address than a real client would.
+        env:
+          NODE_ENV: development
+          RATE_LIMIT_DISABLED: 'true'
+        run: |
+          node src/server.js &
+          echo $! > /tmp/api.pid
+          for i in $(seq 1 40); do
+            curl -sf http://localhost:4000/api/ready && break
+            sleep 0.5
+          done
+
+      - name: Smoke test
+        run: node scripts/smoke-test.mjs
+
+      - name: Stop the API
+        if: always()
+        run: kill "$(cat /tmp/api.pid)" || true
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Audit
+        working-directory: frontend
+        run: npm audit --audit-level=high
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
