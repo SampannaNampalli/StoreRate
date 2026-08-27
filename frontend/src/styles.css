@@ -1,0 +1,1342 @@
+/* =============================================================
+   StoreRate — "Shopfront Ledger"
+
+   A public register of high-street retail reputation. The visual
+   language borrows from enamel shop signage: deep bottle green,
+   wide painted lettering, saffron used sparingly and precisely.
+
+   Two colour rules hold the system together:
+     · saffron appears ONLY on a rating.
+     · clay appears ONLY on an error or a destructive control.
+   Everything else is bottle green, ink, or paper. If a new element
+   needs a colour to tell things apart, it uses weight, rule, or
+   outline instead of a new hue.
+   ============================================================= */
+
+:root {
+  /* ---- ground ---- */
+  --paper: #e8ebe6;
+  --paper-deep: #dde2db;
+  --card: #ffffff;
+
+  /* ---- ink ---- */
+  --ink: #131a18;
+  --ink-muted: #55605b;
+  --ink-subtle: #7d8781;
+
+  /* ---- rules ---- */
+  --rule: #d3dad2;
+  --rule-strong: #b6c0b6;
+
+  /* ---- bottle green: navigation, primary action, masthead ---- */
+  --bottle: #0d4f44;
+  --bottle-deep: #093a32;
+  --bottle-lift: #14655a;
+  --bottle-wash: #e3ece8;
+
+  /* ---- saffron: RATINGS ONLY ---- */
+  --saffron: #d9901a;
+  --saffron-track: #e2e6df;
+
+  /* ---- clay: ERRORS AND DESTRUCTION ONLY ---- */
+  --clay: #a3392b;
+  --clay-wash: #f6e9e6;
+
+  /* ---- confirmation ---- */
+  --confirm-wash: #e3ece8;
+
+  --radius-sm: 3px;
+  --radius: 5px;
+  --radius-lg: 7px;
+
+  --shadow-sm: 0 1px 2px rgba(19, 26, 24, 0.06);
+  --shadow: 0 6px 24px -8px rgba(19, 26, 24, 0.18);
+
+  --display: 'Archivo', 'Arial Narrow', Arial, sans-serif;
+  --body: 'Instrument Sans', 'Segoe UI', system-ui, sans-serif;
+
+  --shell-max: 1180px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+p,
+dl,
+dd {
+  margin: 0;
+}
+
+/* Display face, pushed wide — the painted-signage register. Reserved for
+   page titles, the wordmark, and figures that carry the page. */
+h1,
+h2,
+.display {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 112;
+  letter-spacing: -0.015em;
+}
+
+a {
+  color: var(--bottle);
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--bottle);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.muted {
+  color: var(--ink-muted);
+}
+
+/* Every figure in the product lines up in its column. */
+.tnum,
+.table td,
+.table th,
+.rating__value,
+.stat__value,
+.pagination {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- shell ---------- */
+
+.app-shell {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The masthead is a solid painted band — it anchors pages that would
+   otherwise float in empty ground. */
+.topbar {
+  background: var(--bottle);
+  color: #fff;
+}
+
+.topbar__inner {
+  max-width: var(--shell-max);
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.brand__name {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 122;
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: 0.005em;
+  line-height: 1;
+  color: #fff;
+}
+
+/* The wordmark carries a miniature of the rating meter — the same
+   five segments that appear beside every score in the product. */
+.brand__rule {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+  width: 100%;
+}
+
+.brand__rule span {
+  height: 2px;
+  background: var(--saffron);
+  border-radius: 1px;
+}
+
+.brand__rule span:last-child {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: auto;
+}
+
+.nav__link {
+  position: relative;
+  padding: 20px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.74);
+  line-height: 1;
+}
+
+.nav__link:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+.nav__link.is-active {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Active state is a painted underline, not a coloured pill — saffron is
+   spoken for, and a second green would be noise on green. */
+.nav__link.is-active::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  height: 2px;
+  background: #fff;
+}
+
+.topbar__user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.topbar__identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.25;
+}
+
+.topbar__name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.content {
+  flex: 1;
+  width: 100%;
+  max-width: var(--shell-max);
+  margin: 0 auto;
+  padding: 36px 24px 64px;
+}
+
+/* ---------- page header ---------- */
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.page-header__title {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.page-header__subtitle {
+  color: var(--ink-muted);
+  font-size: 14.5px;
+  margin-top: 6px;
+  max-width: 60ch;
+}
+
+.page-header__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ---------- cards ---------- */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-bottom: 20px;
+}
+
+.card--flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+.card--narrow {
+  max-width: 560px;
+}
+
+.card__title {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 112;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-muted);
+}
+
+.card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.card__header .card__title {
+  margin: 0;
+  /* Uppercase and letterspaced, this title wraps badly the moment a control
+     sits next to it. Let the control give up width instead. */
+  white-space: nowrap;
+}
+
+/* A filter beside a card title is a control, not a field — it should not
+   stretch to fill the header. */
+.card__header .input {
+  width: auto;
+  min-width: 0;
+  max-width: 240px;
+}
+
+/* ---------- stats ---------- */
+
+/* Read as a ledger strip rather than three floating tiles: one bordered
+   band, divided, so the totals are legible as a set. */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.stat {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-left: 1px solid var(--rule);
+  color: var(--ink);
+}
+
+.stat:first-child {
+  border-left: 0;
+}
+
+.stat--link:hover {
+  background: var(--bottle-wash);
+  text-decoration: none;
+}
+
+.stat__value {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 118;
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  /* Explicit, so a stat wrapped in a link does not inherit the link
+     colour while a stat in a div inherits body ink. */
+  color: var(--ink);
+}
+
+.stat__label {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+.stat__hint {
+  font-size: 12.5px;
+  color: var(--ink-subtle);
+  line-height: 1.4;
+}
+
+/* The administrator's dashboard displays three totals and nothing else — that
+   is the whole of what it is asked to show. So the totals carry the page
+   rather than sitting as small tiles above empty ground. */
+.stat-grid--hero .stat {
+  min-height: 196px;
+  padding: 26px 24px 22px;
+}
+
+.stat-grid--hero .stat__value {
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat__go {
+  margin-top: auto;
+  padding-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bottle);
+}
+
+.stat--link:hover .stat__go {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* The owner's headline figure. Green, because it is the page's subject —
+   not because a card needed decorating. */
+.stat--feature {
+  background: var(--bottle);
+  border-left-color: var(--bottle);
+}
+
+.stat--feature .stat__value,
+.stat--feature .stat__label {
+  color: #fff;
+}
+
+.stat--feature .stat__hint {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.stat--feature .rating__seg {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+/* ---------- forms ---------- */
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field__label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+.field__required {
+  color: var(--ink-subtle);
+  font-weight: 500;
+}
+
+.input {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.input::placeholder {
+  color: var(--ink-subtle);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--bottle);
+  box-shadow: 0 0 0 3px var(--bottle-wash);
+}
+
+.input--textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.input--compact {
+  padding: 7px 10px;
+  font-size: 14px;
+}
+
+.field--invalid .input {
+  border-color: var(--clay);
+}
+
+.field--invalid .input:focus {
+  box-shadow: 0 0 0 3px var(--clay-wash);
+}
+
+.field__hint {
+  font-size: 12.5px;
+  color: var(--ink-subtle);
+  margin-top: 5px;
+}
+
+.field__error {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--clay);
+  margin-top: 5px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.filter-field {
+  flex: 1 1 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+/* Set like a table heading, because that is what it names: the column this
+   control narrows. */
+.filter-field__label {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 108;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+}
+
+/* A native select and a text input do not resolve to the same intrinsic
+   height, which knocked the last filter's label out of line with the rest of
+   the row. Fix the height so every control in the row matches. */
+.filters .input {
+  width: 100%;
+  height: 38px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.filters .btn {
+  flex-shrink: 0;
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 9px 16px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--bottle);
+  color: #fff;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--bottle-lift);
+  text-decoration: none;
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--rule-strong);
+  color: var(--ink);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  border-color: var(--bottle);
+  color: var(--bottle);
+  text-decoration: none;
+}
+
+/* Ghost buttons sitting on the green masthead. */
+.topbar .btn--ghost {
+  border-color: rgba(255, 255, 255, 0.34);
+  color: #fff;
+}
+
+.topbar .btn--ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #fff;
+}
+
+.btn--sm {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.btn--block {
+  width: 100%;
+  padding: 11px 16px;
+}
+
+.link-btn {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--bottle);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link-btn:hover {
+  color: var(--bottle-lift);
+}
+
+/* ---------- table ---------- */
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: middle;
+}
+
+.table th {
+  background: var(--paper-deep);
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 108;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  border-bottom-color: var(--rule-strong);
+  white-space: nowrap;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table tbody tr:hover {
+  background: var(--bottle-wash);
+}
+
+.table .is-right {
+  text-align: right;
+}
+
+.table__state {
+  text-align: center;
+  color: var(--ink-muted);
+  padding: 40px 16px;
+}
+
+.table tbody tr.is-clickable {
+  cursor: pointer;
+}
+
+.th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.th-sort:hover {
+  color: var(--bottle);
+}
+
+.th-sort.is-active {
+  color: var(--bottle);
+}
+
+/* A drawn caret rather than a text arrow, so the mark keeps its size and
+   baseline regardless of the font. */
+.th-sort__icon {
+  width: 7px;
+  height: 4px;
+  flex-shrink: 0;
+  background: currentColor;
+  opacity: 0.4;
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+
+.th-sort.is-active .th-sort__icon {
+  opacity: 1;
+}
+
+.th-sort__icon--asc {
+  clip-path: polygon(50% 0, 0 100%, 100% 100%);
+}
+
+.cell-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 34ch;
+}
+
+.store-name {
+  font-weight: 600;
+}
+
+.rating-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* In a right-aligned column the cell grows leftwards, so a wider tally drags
+   the meter out of line with the rows above it — the bars stop forming a
+   column you can read down. Reserving the count's width pins them. */
+.rating-cell__count {
+  min-width: 4ch;
+  text-align: left;
+  color: var(--ink-subtle);
+  font-size: 12.5px;
+}
+
+/* ---------- pagination ---------- */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--rule);
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination__page {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* -------------------------------------------------------------
+   THE RATING METER — the signature
+
+   Every score in the product is one atom: five segments, filled
+   proportionally, with the figure beside it in tabular numerals.
+   A partial fill is exact, so 4.14 and 4.80 are visibly different
+   — which five glyphs could never show.
+   ------------------------------------------------------------- */
+
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+}
+
+.rating__meter {
+  display: grid;
+  grid-template-columns: repeat(5, 13px);
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.rating__seg {
+  height: 7px;
+  border-radius: 1px;
+  background: var(--saffron-track);
+  overflow: hidden;
+}
+
+.rating__seg::before {
+  content: '';
+  display: block;
+  height: 100%;
+  width: var(--fill, 0%);
+  background: var(--saffron);
+}
+
+.rating__value {
+  font-weight: 600;
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
+}
+
+.rating__count {
+  color: var(--ink-subtle);
+  font-size: 12.5px;
+}
+
+.rating--sm .rating__meter {
+  grid-template-columns: repeat(5, 10px);
+  gap: 2px;
+}
+
+.rating--sm .rating__seg {
+  height: 5px;
+}
+
+.rating--lg .rating__meter {
+  grid-template-columns: repeat(5, 22px);
+  gap: 4px;
+}
+
+.rating--lg .rating__seg {
+  height: 10px;
+  border-radius: 2px;
+}
+
+.rating--empty .rating__value {
+  color: var(--ink-subtle);
+  font-weight: 500;
+}
+
+/* The picker keeps five discrete targets — the affordance is unchanged,
+   only the mark is. Padding carries the hit area, not the bar. */
+.rating--interactive .rating__meter {
+  grid-template-columns: repeat(5, 26px);
+  gap: 2px;
+}
+
+.rating--interactive .rating__seg {
+  height: auto;
+  padding: 8px 2px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  overflow: visible;
+}
+
+.rating--interactive .rating__seg::before {
+  width: 100%;
+  height: 8px;
+  border-radius: 1px;
+  background: var(--saffron-track);
+  transition: background-color 0.1s ease;
+}
+
+.rating--interactive .rating__seg.is-on::before {
+  background: var(--saffron);
+}
+
+.rating--interactive .rating__seg:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.my-rating {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+.my-rating__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--ink-muted);
+}
+
+/* ---------- badges ---------- */
+
+/* Roles are told apart by weight and rule, not by three unrelated hues.
+   The only badge that fills is the administrator — the one role with
+   authority over the others, which is a real distinction to draw. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 106;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink-muted);
+  background: transparent;
+  white-space: nowrap;
+}
+
+.badge--admin {
+  background: var(--bottle);
+  border-color: var(--bottle);
+  color: #fff;
+}
+
+.badge--owner {
+  border-color: var(--bottle);
+  color: var(--bottle);
+  font-weight: 700;
+}
+
+.badge--user {
+  border-color: var(--rule-strong);
+  color: var(--ink-muted);
+}
+
+.badge--role {
+  border-color: rgba(255, 255, 255, 0.34);
+  color: rgba(255, 255, 255, 0.86);
+  background: transparent;
+}
+
+/* ---------- detail view ---------- */
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px 28px;
+}
+
+.detail-grid__wide {
+  grid-column: 1 / -1;
+}
+
+.detail-grid dt {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 108;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-subtle);
+  margin-bottom: 4px;
+}
+
+.detail-grid dd {
+  font-size: 14.5px;
+}
+
+.detail-rating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.store-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.store-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.store-list__item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.store-list__name {
+  font-weight: 600;
+}
+
+.store-list__rating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+}
+
+/* ---------- alerts, spinner ---------- */
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  margin-bottom: 18px;
+  border: 1px solid transparent;
+  /* A 3px painted edge carries the tone; the fill stays quiet. */
+  border-left-width: 3px;
+}
+
+.alert--error {
+  background: var(--clay-wash);
+  border-color: rgba(163, 57, 43, 0.24);
+  border-left-color: var(--clay);
+  color: #7a2a20;
+}
+
+.alert--success {
+  background: var(--confirm-wash);
+  border-color: rgba(13, 79, 68, 0.22);
+  border-left-color: var(--bottle);
+  color: var(--bottle-deep);
+}
+
+.alert__close {
+  font: inherit;
+  font-size: 18px;
+  line-height: 1;
+  background: none;
+  border: 0;
+  padding: 0 2px;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.alert__close:hover {
+  opacity: 1;
+}
+
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 32px 0;
+  color: var(--ink-muted);
+  font-size: 13.5px;
+}
+
+.spinner__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bottle);
+  animation: spinner-pulse 1s ease-in-out infinite;
+}
+
+.spinner__dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.spinner__dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes spinner-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+/* -------------------------------------------------------------
+   error boundary
+   ------------------------------------------------------------- */
+
+.error-boundary__detail {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--ink-muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------- auth pages ---------- */
+
+/* Split screen: the register on the left states what the product is,
+   the form on the right does the work. Replaces a small card marooned
+   in an empty field. */
+.auth-page {
+  min-height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.auth-aside {
+  background: var(--bottle);
+  color: #fff;
+  padding: 48px 56px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The statement and its worked example belong together near the foot of the
+   panel; spacing all three blocks evenly opened a void between them. */
+.auth-aside__body {
+  margin-top: auto;
+  margin-bottom: 44px;
+}
+
+.auth-aside__note {
+  margin-top: 14px;
+}
+
+.auth-aside__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 128px;
+}
+
+.auth-aside__brand .brand__name {
+  font-size: 24px;
+}
+
+.auth-aside__lede {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 114;
+  font-size: clamp(30px, 3.4vw, 46px);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  max-width: 15ch;
+}
+
+.auth-aside__note {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 42ch;
+}
+
+/* A worked example of the meter, so the mark is legible before the
+   reader ever meets it in a table. */
+.auth-aside__sample {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-aside__sample-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.auth-aside__sample-row:last-child {
+  border-bottom: 0;
+}
+
+.auth-aside__sample .rating__seg {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.auth-aside__sample .rating__value {
+  color: #fff;
+}
+
+.auth-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background: var(--paper);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+}
+
+.auth-card--wide {
+  max-width: 460px;
+}
+
+.auth-card__head {
+  margin-bottom: 24px;
+}
+
+.auth-card__head h1 {
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.auth-card__head p {
+  color: var(--ink-muted);
+  font-size: 14px;
+  margin-top: 7px;
+}
+
+.auth-card__foot {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule-strong);
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 900px) {
+  .auth-page {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-aside {
+    padding: 32px 24px;
+    gap: 24px;
+  }
+
+  .auth-aside__sample {
+    display: none;
+  }
+
+  .auth-main {
+    padding: 32px 24px 56px;
+  }
+
+  .auth-card,
+  .auth-card--wide {
+    max-width: 460px;
+  }
+}
+
+@media (max-width: 760px) {
+  .topbar__inner {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .nav {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    margin-right: 0;
+  }
+
+  .nav__link {
+    padding: 10px 12px;
+  }
+
+  .nav__link.is-active::after {
+    bottom: 2px;
+  }
+
+  .topbar__user {
+    margin-left: auto;
+  }
+
+  .content {
+    padding: 24px 16px 48px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filters .input {
+    flex: 1 1 100%;
+  }
+
+  .stat {
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .stat:first-child {
+    border-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
